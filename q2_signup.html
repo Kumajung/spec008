@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Q2 – Custom JS Validation</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <h1>Sign up</h1>
+  <form id="form" autocomplete="off" novalidate>
+    <label for="email">Email</label>
+    <input id="email" type="text" autocomplete="off">
+    <span id="emailErr" class="error"></span>
+
+    <label for="password">Password</label>
+    <input id="password" type="password" autocomplete="new-password">
+    <span id="pwdErr" class="error"></span>
+
+    <p><button type="submit">Create account</button></p>
+  </form>
+
+  <script>
+    const form = document.getElementById('form');
+    const email = document.getElementById('email');
+    const pwd = document.getElementById('password');
+    const emailErr = document.getElementById('emailErr');
+    const pwdErr = document.getElementById('pwdErr');
+
+    function isEmailLike(v){
+      const at = v.indexOf('@'), dot = v.lastIndexOf('.');
+      return at>0 && dot>at+1 && dot<v.length-1;
+    }
+    function validateEmail(){
+      let msg='';
+      if(!email.value) msg='Email is required';
+      else if(!isEmailLike(email.value)) msg='Please enter a valid email';
+      emailErr.textContent = msg;
+      email.classList.toggle('is-invalid', !!msg);
+      email.classList.toggle('is-valid', !msg);
+      return !msg;
+    }
+    function validatePassword(){
+      let msg='';
+      if(!pwd.value) msg='Password is required';
+      else if(pwd.value.length<8) msg='Must be at least 8 characters';
+      else if(!/\d/.test(pwd.value)) msg='Include at least one number';
+      pwdErr.textContent = msg;
+      pwd.classList.toggle('is-invalid', !!msg);
+      pwd.classList.toggle('is-valid', !msg);
+      return !msg;
+    }
+    email.addEventListener('input', validateEmail);
+    pwd.addEventListener('input', validatePassword);
+    form.addEventListener('submit', (e)=>{
+      const ok = validateEmail() && validatePassword();
+      if(!ok) e.preventDefault();
+    });
+  </script>
+</body>
+</html>
