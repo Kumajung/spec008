@@ -8,19 +8,10 @@
   <style>
     .success{background:#e8f5e9;border:1px solid #2e7d32;color:#2e7d32;
       padding:12px 14px;border-radius:6px;margin:16px 0}
-    .kv b{display:inline-block;width:120px}
-    .review-panel{margin-top:20px}
-    .review-panel h2{margin:16px 0 8px}
-    .review-panel .kv{margin-top:8px}
-    .review-tools{margin-top:32px;padding:18px;border-radius:12px;background:#f1f8e9;border:1px solid #aed581}
-    .review-tools h2{margin-top:0;margin-bottom:12px}
-    .review-tools .controls{display:flex;gap:12px;flex-wrap:wrap;align-items:center}
-    .review-tools button{padding:10px 16px;border-radius:8px;border:1px solid #7cb342;background:#8bc34a;color:#0d5302;font-weight:600;cursor:pointer}
-    .review-tools button:focus{outline:3px solid rgba(124,179,66,.45)}
-    .review-tools button:hover{background:#7cb342}
-    .review-tools button:active{transform:scale(.98)}
-    .info-text{margin-top:12px}
-    .is-hidden{display:none}
+    .review-table{border-collapse:collapse;margin-top:12px;width:100%;max-width:360px}
+    .review-table th,
+    .review-table td{border:1px solid #c5e1a5;padding:8px 10px;text-align:left}
+    .review-table th{background:#f1f8e9;width:40%}
   </style>
 </head>
 <body>
@@ -39,19 +30,7 @@
 
       <p><button id="submitBtn" type="submit" disabled>Create account</button></p>
     </form>
-    <div id="reviewPanel" class="review-panel is-hidden" aria-live="polite"></div>
   </div>
-
-  <section class="review-tools" aria-label="Page interactions">
-    <h2>Interactive Controls</h2>
-    <div class="controls">
-      <button id="bgBtn" type="button">Change background</button>
-      <button id="toggleTextBtn" type="button" aria-expanded="true">Hide message</button>
-      <button id="counterBtn" type="button">Add to counter</button>
-      <span aria-live="polite">Counter: <strong id="counterValue">0</strong></span>
-    </div>
-    <p id="infoText" class="info-text">Use these buttons to preview simple UI feedback interactions.</p>
-  </section>
 
   <script>
     const app = document.getElementById('app');
@@ -62,15 +41,6 @@
     const btn = document.getElementById('submitBtn');
     const emailErr = document.getElementById('emailErr');
     const pwdErr = document.getElementById('pwdErr');
-    const reviewPanel = document.getElementById('reviewPanel');
-    const bgBtn = document.getElementById('bgBtn');
-    const toggleTextBtn = document.getElementById('toggleTextBtn');
-    const counterBtn = document.getElementById('counterBtn');
-    const counterValue = document.getElementById('counterValue');
-    const infoText = document.getElementById('infoText');
-    const colors = ['#ffffff','#fff8e1','#e1f5fe','#fce4ec','#e8f5e9'];
-    let colorIndex = 0;
-    let count = 0;
 
     function isEmailLike(v){
       const at = v.indexOf('@'), dot = v.lastIndexOf('.');
@@ -106,46 +76,27 @@
       const ok = validateEmail() && validatePassword() && terms.checked;
       btn.disabled = !ok;
     }
-    function resetValidation(){
-      email.classList.remove('is-valid','is-invalid');
-      pwd.classList.remove('is-valid','is-invalid');
-      emailErr.textContent = '';
-      pwdErr.textContent = '';
-    }
-    function renderSuccess(maskedEmail){
-      reviewPanel.innerHTML = '<div class="success">✅ Sign-up successful!</div>' +
-        '<h2>Review</h2>' +
-        '<div class="kv"><b>Email</b> <span>'+maskedEmail+'</span></div>' +
-        '<div class="kv"><b>Password</b> Not displayed (for your security)</div>';
-      reviewPanel.classList.remove('is-hidden');
-    }
     email.addEventListener('input', updateBtn);
     pwd.addEventListener('input', updateBtn);
     terms.addEventListener('change', updateBtn);
-    bgBtn.addEventListener('click', () => {
-      colorIndex = (colorIndex + 1) % colors.length;
-      document.body.style.backgroundColor = colors[colorIndex];
-    });
-    toggleTextBtn.addEventListener('click', () => {
-      const isHidden = infoText.classList.toggle('is-hidden');
-      toggleTextBtn.textContent = isHidden ? 'Show message' : 'Hide message';
-      toggleTextBtn.setAttribute('aria-expanded', String(!isHidden));
-    });
-    counterBtn.addEventListener('click', () => {
-      count += 1;
-      counterValue.textContent = String(count);
-    });
 
     form.addEventListener('submit', (e)=>{
       const ok = validateEmail() && validatePassword() && terms.checked;
       if(!ok){ e.preventDefault(); return; }
       e.preventDefault();
       const masked = maskEmail(email.value);
-      renderSuccess(masked);
-      form.reset();
-      resetValidation();
-      btn.disabled = true;
-      terms.checked = false;
+      app.innerHTML = `
+        <div class="success">✅ Sign-up successful!</div>
+        <section>
+          <h2>Review</h2>
+          <table class="review-table">
+            <tbody>
+              <tr><th scope="row">Email</th><td>${masked}</td></tr>
+              <tr><th scope="row">Password</th><td>Not displayed (for your security)</td></tr>
+            </tbody>
+          </table>
+        </section>
+      `;
     });
   </script>
 </body>
